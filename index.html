@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery.js"></script>
+	<link rel="stylesheet" href="index.css">
+	<script>
+    $(function(){
+    // 铺满格子
+    	for (var i = 0; i < 20 ;i++) {
+    		for (var j = 0; j < 20; j++) {
+    			var r=Math.floor(Math.random()*255)
+    			var g=Math.floor(Math.random()*255)
+    			var b=Math.floor(Math.random()*255)
+    			var color='rgba('+r+','+g+','+b+',0.2)'
+    		$('<div>')
+    		.attr('id',i+'_'+j)
+    		.addClass('block')
+    		.css('backgroundColor',color)
+    		.appendTo('.scene')
+    		};
+    	};
+      // 最开始放3个方块
+    	var she=[{x:0,y:0},{x:0,y:1},{x:0,y:2}]
+      // 记录蛇的id值，使得食物不要放在蛇身上
+    	var shebiao={'0_0':true,'0_1':true,'0_2':true}
+        function findDiv(x,y){
+        	return $('#'+x+'_'+y)//返回一个jQuery对象
+        }
+       // 遍历she并加类名
+    	$.each(she,function(i,v){
+    		findDiv(v.x,v.y).addClass('she')
+    	})
+    console.log(she)
+      // 放食物，并且食物不能放在蛇身上
+      function fangshiwu(){
+      	do{
+    		var x=Math.floor(Math.random()*20)
+    		var y=Math.floor(Math.random()*20)
+    	}while(shebiao[x+'_'+y])
+    		findDiv(x,y).addClass('shiwu')
+    		return {x:x,y:y}
+    	}
+        var shiwu=fangshiwu();
+        console.log(shiwu )
+        var direction='you';//刚开始默认是右方向
+         $(document).on('keyup',function(e){
+         	// console.log(e.keyCode)
+    	      var biao={37:'zuo',38:'shang',39:'you',40:'xia'}
+    	      var fanbiao={'zuo':37,'shang':38,'you':39,'xia':40}
+    	      // 如果值为2则不变换方向
+    	      if (Math.abs(e.keyCode-fanbiao[direction])===2) {
+    	      	 return
+    	      };
+              if (biao[e.keyCode]) {
+                      direction=biao[e.keyCode]
+                     };
+    	    })
+         $('.aa').on('click',function(){
+                $(this).toggleClass('pp');
+                // $(this).text($(this).text() === "start"?"stop":"start");
+                if($(this).text()=='start'){
+                 timerId=setInterval(move,200)
+                    $(this).text('stop')
+                }else{
+                    clearInterval(timerId)
+                    $(this).text('start')
+                }
+            })
+            
+      	function move(){
+    		var jiutou=she[she.length-1];
+    		if (direction==='you') {var xintou={x:jiutou.x,y:jiutou.y+1}};
+    		if (direction==='zuo') {var xintou={x:jiutou.x,y:jiutou.y-1}};
+    		if (direction==='shang') {var xintou={x:jiutou.x-1,y:jiutou.y}};
+    		if (direction==='xia') {var xintou={x:jiutou.x+1,y:jiutou.y}};
+    	    // 撞到自己游戏结束，清楚时间函数
+    	    if (shebiao[xintou.x+'_'+xintou.y]) {
+    			clearInterval(timerId)
+    			alert('撞到自己了')
+    			return;
+    		};
+    		// 撞到四周，游戏结束，清楚时间函数
+    	    if (xintou.x<0||xintou.x>19||xintou.y<0||xintou.y>19) {
+    			clearInterval(timerId)
+    			alert('撞死')
+    			return;
+    		};
+         // 加头去尾
+    	    she.push(xintou)
+    	    shebiao[xintou.x+'_'+xintou.y]=true;
+            // console.log(shebiao)
+    	    findDiv(xintou.x,xintou.y).addClass('she')
+
+    	    if (xintou.x===shiwu.x&&xintou.y===shiwu.y) {
+    	    	// 不去尾
+    	        findDiv(shiwu.x,shiwu.y).removeClass('shiwu');
+    			shiwu=fangshiwu()
+    			// console.log(shiwu.x)
+    	    }else{
+    	    	// 去尾
+    	    	var weiba=she.shift();//移出数组中的第一个元素，并返回第一个元素的值
+    			delete shebiao[weiba.x+'_'+weiba.y]//删除shebiao中的字段
+    	        findDiv(weiba.x,weiba.y).removeClass('she')//移出尾巴
+    	    }
+    		
+    		}
+        
+        // var timerId=setInterval(move,200)
+          
+         // 时间函数
+         // 转换方向
+           
+// var t = 1;
+// function con(){
+//     console.log(t);
+//     var t = 2;//执行函数过程中，先初始化t变量，并未赋值，此时为undefined，直至var t = 2时才赋值为2，所以第二个输出是2
+//     console.log(t);
+// }
+// con()
+    })
+	</script>
+</head>
+<body>
+	<!-- <div class="bg"> -->
+		<div class="scene"></div>
+        <!-- <input type="botton" class="aa" value="stop"> -->
+        <div class="aa" style="cursor:pointer;left:-280px" >start</div>
+	<!-- </div> -->
+</body>
+</body>
+</html>
